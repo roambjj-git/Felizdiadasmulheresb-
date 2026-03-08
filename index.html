@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Surpresa...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #111;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem; /* Aumentei gap pra numerações ficarem mais espaçadas/centralizadas */
+      padding: 20px;
+      transition: opacity 0.6s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    h1, h2 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px rgba(255,105,180,0.6);
+    }
+    p {
+      font-size: 1.6rem;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+    input, button {
+      font-size: 1.5rem;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      margin: 10px;
+    }
+    input {
+      width: 320px;
+      text-align: center;
+      background: #222;
+      color: #fff;
+    }
+    button {
+      background: #ff69b4;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff1493;
+      transform: scale(1.08);
+    }
+    .error {
+      color: #ff4d4d;
+      font-size: 2rem;
+      font-weight: bold;
+      animation: shake 0.4s;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .option {
+      font-size: 1.8rem;
+      padding: 18px 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      min-width: 180px;
+      transition: 0.3s;
+    }
+    .option:hover {
+      transform: scale(1.1);
+    }
+    .number {
+      font-size: 6rem; /* Numerações grandes e centralizadas */
+      cursor: pointer;
+      color: #ff69b4;
+      margin: 2rem 0; /* Ajuste pra ficar na "mesma altura" visual das outras telas */
+    }
+  </style>
+</head>
+<body>
+
+<!-- Tela 0 - Intro -->
+<div id="intro" class="screen active">
+  <h1>Não confie nos seus olhos</h1>
+</div>
+
+<!-- Tela 1 - Senha bêbada de sono (dica sem revelar) -->
+<div id="step-1" class="screen">
+  <h2>Senha</h2>
+  <p>Coloque a senha secreta</p>
+  <p class="dica">Dica: você diz quando tá digitando errado com sono</p>
+  <input type="text" id="pass1" placeholder="digite a senha" autocomplete="off"/>
+  <button onclick="checkPass1()">Enter</button>
+  <div id="error1" class="error"></div>
+</div>
+
+<!-- Tela 2 - Cor da maçã verde -->
+<div id="step-2" class="screen">
+  <h2 class="number">2</h2>
+  <p>Qual a cor da maçã verde?</p>
+  <div class="options">
+    <div class="option" style="background: red; color: white;" onclick="wrong()">verde</div>
+    <div class="option" style="background: limegreen; color: black;" onclick="nextStep(3)">vermelho</div>
+  </div>
+  <div id="error2" class="error"></div>
+</div>
+
+<!-- Tela 3 - 2+1 (só o 3 clicável, sem texto extra) -->
+<div id="step-3" class="screen">
+  <div class="number" onclick="nextStep(4)">3</div>
+  <p>Quanto é 2+1?</p>
+  <div class="options">
+    <div class="option" style="background:#444;" onclick="wrong()">2</div>
+    <div class="option" style="background:#444;" onclick="wrong()">4</div>
+    <div class="option" style="background:#444;" onclick="wrong()">6</div>
+  </div>
+  <div id="error3" class="error"></div>
+</div>
+
+<!-- Tela 4 - Complete a frase -->
+<div id="step-4" class="screen">
+  <h2 class="number">4</h2>
+  <p>Complete a frase:</p>
+  <p style="font-size:2.2rem; margin:1.5rem 0;">Eu te....</p>
+  <input type="text" id="pass4" placeholder="digite aqui" autocomplete="off"/>
+  <button onclick="checkPass4()">Enter</button>
+  <div id="msg4" style="font-size:1.6rem; margin-top:-2rem; min-height:2rem;"></div>
+  <div id="error4" class="error"></div>
+</div>
+
+<!-- Tela 5 - leporto -->
+<div id="step-5" class="screen">
+  <h2 class="number">4</h2>
+  <p>Digite a senha que apareceu:</p>
+  <input type="text" id="pass5" placeholder="digite aqui" autocomplete="off"/>
+  <button onclick="checkPass5()">Enter</button>
+  <div id="error5" class="error"></div>
+</div>
+
+<!-- Tela 6 - Encontre o erro (penúltima: só 6 + texto + equação) -->
+<div id="step-6" class="screen">
+  <div class="number" onclick="nextStep(7)">6</div>
+  <h2>Encontre o erro</h2>
+  <p style="font-size:3.5rem; margin:2rem 0;">2 + 2 = 5</p>
+  <div id="error6" class="error"></div>
+</div>
+
+<!-- Tela final -->
+<div id="final" class="screen">
+  <h1>PARABÉNS! VOCÊ CONSEGUIU 🎉</h1>
+  <p style="font-size:2.5rem; margin-top:2rem;">Feliz Dia das Mulheres, minha princesa 🌹❤️</p>
+</div>
+
+<script>
+  let currentStep = 0;
+  const screens = [
+    'intro',
+    'step-1',
+    'step-2',
+    'step-3',
+    'step-4',
+    'step-5',
+    'step-6',
+    'final'
+  ];
+
+  function goToStep(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screens[n]).classList.add('active');
+    currentStep = n;
+    document.querySelectorAll('.error').forEach(el => el.textContent = '');
+    if (n === 1) document.getElementById('pass1').focus();
+    if (n === 4) document.getElementById('pass4').focus();
+    if (n === 5) document.getElementById('pass5').focus();
+  }
+
+  setTimeout(() => {
+    goToStep(1);
+  }, 3000);
+
+  function checkPass1() {
+    let val = document.getElementById('pass1').value.trim().toLowerCase();
+    val = val.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // remove acentos
+    val = val.replace(/\s+/g, ' '); // normaliza espaços
+    if (val.includes('bebada de sono') || val === 'bêbada de sono' || val === 'bebada sono') {
+      goToStep(2);
+    } else {
+      document.getElementById('error1').textContent = 'errou cabaça';
+    }
+  }
+
+  function checkPass4() {
+    const val = document.getElementById('pass4').value.trim().toLowerCase();
+    if (val === 'amo') {
+      document.getElementById('msg4').innerHTML = 'OXE, você me ama? RS<br>a senha é <strong>leporto</strong>';
+      document.getElementById('error4').textContent = '';
+      setTimeout(() => goToStep(5), 2800);
+    } else {
+      document.getElementById('error4').textContent = 'errou cabaça';
+    }
+  }
+
+  function checkPass5() {
+    const val = document.getElementById('pass5').value.trim().toLowerCase();
+    if (val === 'leporto' || val === 'reporto') {
+      goToStep(6);
+    } else {
+      document.getElementById('error5').textContent = 'errou cabaça';
+    }
+  }
+
+  function wrong() {
+    const err = document.getElementById('error' + currentStep);
+    if (err) err.textContent = 'errou cabaça';
+  }
+
+  function nextStep(n) {
+    goToStep(n);
+  }
+
+  document.getElementById('pass1').addEventListener('keypress', e => {
+    if (e.key === 'Enter') checkPass1();
+  });
+  document.getElementById('pass4').addEventListener('keypress', e => {
+    if (e.key === 'Enter') checkPass4();
+  });
+  document.getElementById('pass5').addEventListener('keypress', e => {
+    if (e.key === 'Enter') checkPass5();
+  });
+</script>
+</body>
+</html>
